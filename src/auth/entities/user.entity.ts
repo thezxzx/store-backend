@@ -26,6 +26,11 @@ export class User {
   })
   username: string;
 
+  @Column('bool', {
+    default: true,
+  })
+  isActive: boolean;
+
   @Column('varchar', {
     array: true,
     default: ['user'],
