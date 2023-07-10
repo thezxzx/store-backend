@@ -3,8 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isUUID } from 'class-validator';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Repository } from 'typeorm';
@@ -53,8 +55,39 @@ export class ProductsService {
     return product;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} product`;
+  async findOne(term: string) {
+    let product: Product;
+
+    if (isUUID(term)) {
+      product = await this.productRepository.findOne({
+        where: {
+          id: term,
+          isActive: true,
+        },
+      });
+    } else {
+      const queryBuilder = this.productRepository.createQueryBuilder('prod');
+      product = await queryBuilder
+        .where('(prod.name = :name or prod.code = :code)', {
+          name: term.toLowerCase(),
+          code: term,
+        })
+        .andWhere('prod.isActive = true')
+        // .leftJoinAndSelect('prod.images', 'prodImages')
+        .getOne();
+    }
+
+    if (!product)
+      throw new NotFoundException(`Product with term ${term} not found`);
+
+    return product;
+  }
+
+  async findOnePlain(term: string) {
+    const { ...product } = await this.findOne(term);
+    return {
+      ...product,
+    };
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
