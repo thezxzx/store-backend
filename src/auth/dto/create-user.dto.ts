@@ -3,7 +3,6 @@ import {
   IsString,
   Matches,
   MaxLength,
-  Min,
   MinLength,
 } from 'class-validator';
 
@@ -22,6 +21,6 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  @Min(3)
+  @MinLength(3)
   username: string;
 }

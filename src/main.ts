@@ -9,6 +9,8 @@ async function bootstrap() {
 
   const logger = new Logger('BOOTSTRAP');
 
+  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
