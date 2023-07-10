@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { JoiValidationSchema } from './config/joi.validation';
       autoLoadEntities: true,
       synchronize: true,
     }),
+
+    ProductsModule,
   ],
   controllers: [],
   providers: [],
