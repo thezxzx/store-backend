@@ -3,12 +3,13 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcr from 'bcrypt';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces';
 
@@ -43,7 +44,29 @@ export class AuthService {
     }
   }
 
-  private getJwt(payload: JwtPayload) {
+  async login(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
+
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: { email: true, password: true },
+    });
+
+    console.log(user);
+
+    if (!user || !bcr.compareSync(password, user.password))
+      throw new UnauthorizedException('Credentials are not valid');
+
+    // if (!bcr.compareSync(password, user.password))
+    //   throw new UnauthorizedException('Credentials are not valid (password)');
+
+    return {
+      ...user,
+      token: this.getJwt({ id: user.id }),
+    };
+  }
+
+  private getJwt(payload: JwtPayload): string {
     const token = this.jwtService.sign(payload);
     return token;
   }
