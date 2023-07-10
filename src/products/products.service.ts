@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -21,6 +21,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto, user: User) {
@@ -90,11 +92,50 @@ export class ProductsService {
     };
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
+    const { ...toUpdate } = updateProductDto;
+
+    const product = await this.productRepository.preload({
+      id,
+      ...toUpdate,
+    });
+
+    if (!product)
+      throw new NotFoundException(`Product with id: ${id} not found`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      // if (images) {
+      //   await queryRunner.manager.delete(ProductImage, { product: { id } });
+
+      //   product.images = images.map((image) =>
+      //     this.productImageRepository.create({ url: image }),
+      //   );
+      // }
+
+      // product.user = user; // Asignar el usuario actual al producto
+      await queryRunner.manager.save(product);
+
+      // Aplicar cambios
+      await queryRunner.commitTransaction();
+
+      await queryRunner.release();
+
+      return this.findOnePlain(id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      this.handleDBExceptions(error);
+    }
   }
 
-  remove(id: number) {
+  remove(id: string, updatePRoductDto: UpdateProductDto, user: User) {
     return `This action removes a #${id} product`;
   }
 
