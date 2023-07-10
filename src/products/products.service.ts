@@ -12,7 +12,7 @@ export class ProductsService {
     return `This action returns all products`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} product`;
   }
 
