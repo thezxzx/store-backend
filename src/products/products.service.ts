@@ -135,8 +135,32 @@ export class ProductsService {
     }
   }
 
-  remove(id: string, updatePRoductDto: UpdateProductDto, user: User) {
-    return `This action removes a #${id} product`;
+  async remove(id: string, user: User) {
+    const product = await this.productRepository.preload({
+      id,
+    });
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      product.isActive = false;
+      await queryRunner.manager.save(product);
+
+      await queryRunner.commitTransaction();
+
+      await queryRunner.release();
+
+      return;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any) {
