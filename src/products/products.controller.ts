@@ -7,6 +7,9 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { User } from 'src/auth/entities/user.entity';
+import { ValidRoles } from 'src/auth/interfaces';
+import { Auth, GetUser } from '../auth/decorators';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
@@ -16,8 +19,9 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @Auth(ValidRoles.admin, ValidRoles.superUser)
+  create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
+    return this.productsService.create(createProductDto, user);
   }
 
   @Get()

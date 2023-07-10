@@ -52,8 +52,6 @@ export class AuthService {
       select: { email: true, password: true },
     });
 
-    console.log(user);
-
     if (!user || !bcr.compareSync(password, user.password))
       throw new UnauthorizedException('Credentials are not valid');
 
