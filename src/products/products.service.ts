@@ -88,7 +88,7 @@ export class ProductsService {
           code: term,
         })
         .andWhere('prod.isActive = true')
-        // .leftJoinAndSelect('prod.images', 'prodImages')
+        .leftJoinAndSelect('prod.images', 'prodImages')
         .getOne();
     }
 
@@ -99,9 +99,10 @@ export class ProductsService {
   }
 
   async findOnePlain(term: string) {
-    const { ...product } = await this.findOne(term);
+    const { images = [], ...product } = await this.findOne(term);
     return {
       ...product,
+      images: images.map((img) => img.url),
     };
   }
 
