@@ -2,9 +2,11 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from '../../auth/entities/user.entity';
 import { ProductImage } from './product-image.entity';
 
 @Entity('products')
@@ -57,6 +59,9 @@ export class Product {
     },
   )
   images?: ProductImage[];
+
+  @ManyToOne(() => User, (user) => user.product, { eager: true })
+  user: User;
 
   @BeforeInsert()
   lowerCaseName() {
