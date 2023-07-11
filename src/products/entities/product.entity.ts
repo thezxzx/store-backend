@@ -1,3 +1,4 @@
+import { Supplier } from 'src/suppliers/entities/supplier.entity';
 import {
   BeforeInsert,
   Column,
@@ -62,6 +63,9 @@ export class Product {
 
   @ManyToOne(() => User, (user) => user.product, { eager: true })
   user: User;
+
+  @ManyToOne(() => Supplier, (supplier) => supplier.product, { eager: true })
+  supplier: Supplier;
 
   @BeforeInsert()
   lowerCaseName() {
