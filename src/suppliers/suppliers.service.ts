@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Repository } from 'typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -31,11 +32,21 @@ export class SuppliersService {
     }
   }
 
-  findAll() {
-    return `This action returns all suppliers`;
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const suppliers = await this.supplierRepository.find({
+      take: limit,
+      skip: offset,
+      where: {
+        isActive: true,
+      },
+    });
+
+    return suppliers;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} supplier`;
   }
 

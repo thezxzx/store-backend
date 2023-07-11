@@ -9,10 +9,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { User } from 'src/auth/entities/user.entity';
-import { ValidRoles } from 'src/auth/interfaces';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
+import { ValidRoles } from '../auth/interfaces';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
