@@ -12,7 +12,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities';
+import { Product, ProductImage } from './entities';
 
 @Injectable()
 export class ProductsService {
@@ -22,22 +22,32 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(ProductImage)
+    private readonly productImageRepository: Repository<ProductImage>,
+
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto, user: User) {
     try {
-      const { ...productDetails } = createProductDto;
+      const { images = [], ...productDetails } = createProductDto;
 
       // Instancia del producto
       const product = this.productRepository.create({
         ...productDetails,
+        // Crear imagenes dentro de la instancia de producto
+        images: images.map((image) =>
+          this.productImageRepository.create({ url: image }),
+        ),
       });
 
       // Guardar en la base de datos
       await this.productRepository.save(product);
 
-      return { ...product };
+      return {
+        ...product,
+        images: images,
+      };
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -93,7 +103,7 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, user: User) {
-    const { ...toUpdate } = updateProductDto;
+    const { images, ...toUpdate } = updateProductDto;
 
     const product = await this.productRepository.preload({
       id,
@@ -110,13 +120,13 @@ export class ProductsService {
     await queryRunner.startTransaction();
 
     try {
-      // if (images) {
-      //   await queryRunner.manager.delete(ProductImage, { product: { id } });
+      if (images) {
+        await queryRunner.manager.delete(ProductImage, { product: { id } });
 
-      //   product.images = images.map((image) =>
-      //     this.productImageRepository.create({ url: image }),
-      //   );
-      // }
+        product.images = images.map((image) =>
+          this.productImageRepository.create({ url: image }),
+        );
+      }
 
       // product.user = user; // Asignar el usuario actual al producto
       await queryRunner.manager.save(product);

@@ -37,6 +37,11 @@ export class Product {
   })
   description?: string;
 
+  @Column('varchar', {
+    nullable: true,
+  })
+  location?: string;
+
   @Column('bool', {
     default: true,
   })

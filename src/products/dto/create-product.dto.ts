@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsNumber,
   IsOptional,
@@ -29,14 +30,19 @@ export class CreateProductDto {
   @IsOptional()
   description?: string;
 
+  @IsString()
+  @MinLength(2)
+  @IsOptional()
+  location?: string;
+
   @IsBoolean()
   @IsOptional()
   isActive: boolean;
 
-  // @IsString({
-  //   each: true,
-  // })
-  // @IsArray()
-  // @IsOptional()
-  // images?: string[];
+  @IsString({
+    each: true,
+  })
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 }
