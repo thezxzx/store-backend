@@ -1,4 +1,11 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ProductImage } from './product-image.entity';
 
 @Entity('products')
 export class Product {
@@ -35,16 +42,16 @@ export class Product {
   })
   isActive: boolean;
 
-  // @OneToMany(
-  //   () => ProductImage, // Relacionar con la tabla ProductImage
-  //   (productImage) => productImage.product, // Campo con el que se va a relacionar
-  //   {
-  //     cascade: true, // Operaciones en cascada | eliminación
-  //     eager: true, // Cada vez que se use el método find va a cargar las relaciones
-  //   },
-  // )
-  // @ApiProperty()
-  // images?: ProductImage[];
+  // Relación uno a muchos con product_images
+  @OneToMany(
+    () => ProductImage, // Relacionar con la tabla ProductImage
+    (productImage) => productImage.product, // Campo con el que se va a relacionar
+    {
+      cascade: true, // Operaciones en cascada | eliminación
+      eager: true, // Cada vez que se use el método find va a cargar las relaciones
+    },
+  )
+  images?: ProductImage[];
 
   @BeforeInsert()
   lowerCaseName() {

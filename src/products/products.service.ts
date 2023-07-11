@@ -12,7 +12,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
+import { Product } from './entities';
 
 @Injectable()
 export class ProductsService {
