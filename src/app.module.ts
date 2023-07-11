@@ -6,6 +6,7 @@ import { CommonModule } from './common/common.module';
 import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
 import { ProductsModule } from './products/products.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -29,6 +30,8 @@ import { ProductsModule } from './products/products.module';
     }),
 
     ProductsModule,
+
+    FilesModule,
   ],
   controllers: [],
   providers: [],
