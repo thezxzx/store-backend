@@ -39,6 +39,7 @@ export class ProductsService {
         images: images.map((image) =>
           this.productImageRepository.create({ url: image }),
         ),
+        user, // Guardar el usuario
       });
 
       // Guardar en la base de datos
@@ -132,7 +133,7 @@ export class ProductsService {
         );
       }
 
-      // product.user = user; // Asignar el usuario actual al producto
+      product.user = user; // Asignar el usuario actual al producto
       await queryRunner.manager.save(product);
 
       // Aplicar cambios
