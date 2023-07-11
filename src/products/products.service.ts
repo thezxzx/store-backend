@@ -31,7 +31,6 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto, user: User) {
     try {
       const { images = [], ...productDetails } = createProductDto;
-
       // Instancia del producto
       const product = this.productRepository.create({
         ...productDetails,

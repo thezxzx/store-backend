@@ -2,11 +2,13 @@ import {
   IsArray,
   IsBoolean,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Min,
   MinLength,
 } from 'class-validator';
+import { Supplier } from 'src/suppliers/entities/supplier.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -45,4 +47,7 @@ export class CreateProductDto {
   @IsArray()
   @IsOptional()
   images?: string[];
+
+  @IsObject()
+  supplier: Supplier;
 }
