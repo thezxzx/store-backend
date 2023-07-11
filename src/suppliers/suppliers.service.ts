@@ -47,7 +47,11 @@ export class SuppliersService {
   }
 
   findOne(id: string) {
-    return `This action returns a #${id} supplier`;
+    const supplier = this.supplierRepository.findOne({
+      where: { id, isActive: true },
+    });
+
+    return supplier;
   }
 
   update(id: number, updateSupplierDto: UpdateSupplierDto) {
