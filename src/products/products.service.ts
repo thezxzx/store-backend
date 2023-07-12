@@ -162,7 +162,7 @@ export class ProductsService {
 
     try {
       product.isActive = false;
-      await queryRunner.manager.save(product);
+      await queryRunner.manager.save({ ...product, user });
 
       await queryRunner.commitTransaction();
 

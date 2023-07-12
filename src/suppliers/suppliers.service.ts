@@ -3,10 +3,11 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
@@ -18,6 +19,8 @@ export class SuppliersService {
   constructor(
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createSupplierDto: CreateSupplierDto) {
@@ -54,8 +57,37 @@ export class SuppliersService {
     return supplier;
   }
 
-  update(id: number, updateSupplierDto: UpdateSupplierDto) {
-    return `This action updates a #${id} supplier`;
+  async update(id: string, updateSupplierDto: UpdateSupplierDto) {
+    const supplierUpdate = updateSupplierDto;
+
+    const supplier = await this.supplierRepository.preload({
+      id,
+      ...supplierUpdate,
+    });
+
+    if (!supplier)
+      throw new NotFoundException(`Supplier with id: ${id} not found`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(supplier);
+
+      await queryRunner.commitTransaction();
+
+      await queryRunner.release();
+
+      return supplier;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      this.handleDBExceptions(error);
+    }
   }
 
   remove(id: number) {
