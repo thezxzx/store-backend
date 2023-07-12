@@ -45,7 +45,7 @@ export class SuppliersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.suppliersService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.suppliersService.remove(id);
   }
 }

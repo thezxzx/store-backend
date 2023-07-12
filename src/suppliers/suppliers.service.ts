@@ -90,8 +90,32 @@ export class SuppliersService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} supplier`;
+  async remove(id: string) {
+    const supplier = await this.supplierRepository.preload({
+      id,
+    });
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      supplier.isActive = false;
+      await queryRunner.manager.save(supplier);
+
+      await queryRunner.commitTransaction();
+
+      await queryRunner.release();
+
+      return;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any) {
