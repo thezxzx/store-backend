@@ -1,3 +1,4 @@
+import { Sale } from 'src/sales/entities/sale.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -41,6 +42,9 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.user)
   product: Product;
+
+  @OneToMany(() => Sale, (sale) => sale.user)
+  sale: Sale;
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {
