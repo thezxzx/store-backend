@@ -1,5 +1,6 @@
 import { User } from 'src/auth/entities/user.entity';
 import {
+  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
@@ -17,7 +18,10 @@ export class Sale {
   user: User;
 
   @OneToMany(() => DetailSale, (detailSale) => detailSale.sale)
-  detailSale: DetailSale;
+  detailSale: DetailSale[];
+
+  @Column('float')
+  total: number;
 
   @CreateDateColumn()
   createdAt: Date;

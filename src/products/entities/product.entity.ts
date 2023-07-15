@@ -1,3 +1,4 @@
+import { DetailSale } from 'src/sales/entities';
 import { Supplier } from 'src/suppliers/entities/supplier.entity';
 import {
   BeforeInsert,
@@ -66,6 +67,9 @@ export class Product {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.product, { eager: true })
   supplier: Supplier;
+
+  @OneToMany(() => DetailSale, (detailSale) => detailSale.product)
+  detailSale: DetailSale[];
 
   @BeforeInsert()
   lowerCaseName() {
