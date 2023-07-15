@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/user.entity';
+import { ProductsService } from 'src/products/products.service';
 import { Repository } from 'typeorm';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { DetailSale, Sale } from './entities';
@@ -20,36 +21,44 @@ export class SalesService {
 
     @InjectRepository(DetailSale)
     private readonly detailSaleRepository: Repository<DetailSale>,
+
+    private readonly productsService: ProductsService,
   ) {}
 
   async create(createSaleDto: CreateSaleDto[], user: User) {
+    let total: number = 0;
+
     try {
-      let total: number = 0;
-      // Obtener el total de la compra
-      createSaleDto.forEach((ds) => (total += ds.product.price * ds.quantity));
+      let detailSale: DetailSale[] = [];
 
-      // const detailSales = Promise.all(
-      //   createSaleDto.map((csd) => {
-      //     this.detailSaleRepository.create({
-      //       product: csd.product,
-      //       quantity: csd.quantity,
-      //     });
-      //   }),
-      // );
+      for (const csd of createSaleDto) {
+        const { product, quantity } = csd;
+        total += product.price * quantity;
 
-      const detailSales = createSaleDto.map((csd) =>
-        this.detailSaleRepository.create({
-          product: csd.product,
-          quantity: csd.quantity,
-        }),
-      );
+        // Actualizar el stock del producto
+        await this.productsService.update(
+          product.id,
+          {
+            stock: product.stock - quantity,
+          },
+          user,
+        );
 
-      await this.detailSaleRepository.save(detailSales);
+        // Guardar todos los productos en el detalle de ventas
+        detailSale.push(
+          this.detailSaleRepository.create({
+            product,
+            quantity,
+          }),
+        );
+      }
+
+      await this.detailSaleRepository.save(detailSale);
 
       const sale = this.saleRepository.create({
-        detailSale: detailSales,
-        user,
+        detailSale,
         total,
+        user,
       });
 
       await this.saleRepository.save(sale);
