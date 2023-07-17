@@ -10,7 +10,7 @@ export class DetailSale {
   @ManyToOne(() => Sale, (sale) => sale.detailSale, { eager: true })
   sale: Sale;
 
-  @ManyToOne(() => Product, (product) => product.detailSale)
+  @ManyToOne(() => Product, (product) => product.detailSale, { eager: true })
   product: Product;
 
   @Column('int')

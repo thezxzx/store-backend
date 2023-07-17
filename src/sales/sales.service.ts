@@ -69,8 +69,48 @@ export class SalesService {
     }
   }
 
-  findAll() {
-    return `This action returns all sales`;
+  async findAll() {
+    const sales = await this.saleRepository.find({
+      select: {
+        detailSale: {
+          id: true,
+          quantity: true,
+        },
+        total: true,
+        createdAt: true,
+      },
+      relations: {
+        detailSale: true,
+      },
+    });
+
+    sales.map((sale) => {
+      delete sale.user;
+      // delete sale.total;
+      sale;
+      sale.detailSale.map(({ product, sale }) => {
+        delete product.code;
+        delete product.description;
+        delete product.isActive;
+        delete product.stock;
+        delete product.images;
+        delete product.location;
+        delete sale.total;
+        delete sale.createdAt;
+      });
+    });
+
+    // const detailSales = await this.detailSaleRepository.find({
+    //   select: {
+    //     sale: {
+
+    //     },
+    //     product: {
+    //       code: true,
+    //     },
+    //   },
+    // });
+    return sales;
   }
 
   private handleDBExceptions(error: any) {
